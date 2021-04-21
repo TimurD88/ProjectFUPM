@@ -16,7 +16,13 @@ void w_write( adr a, word w );
 word w_read( adr a ); 
 void load_file();
 void mem_dump(adr start, word n);
-
+void trace(char * str, ... ) {
+    va_list ap; 
+    va_start(ap, str);
+    vprintf(str, ap);
+    va_end(ap); 
+    
+}
 
 void test_mem() {
     byte b0 = 0x0a; 
@@ -81,6 +87,7 @@ void mem_dump(adr start, word n)
 {
     for ( word i = 0; i < n; i += 2 )
     {
-        printf("%06o : %06ho\n",start + i, w_read(start + i));
+        trace("%06o : %06ho\n",start + i, w_read(start + i));
+        //printf("%06o : %06ho\n",start + i, w_read(start + i));
     }
 }
