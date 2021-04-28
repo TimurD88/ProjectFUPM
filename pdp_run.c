@@ -6,21 +6,31 @@
 word reg[8]; // регистра р0 ... р7
 #define pc reg[7]
 
+#define NO_PARAMS 0
+#define HAS_DD 1 
+#define HAS_SS 2 
+/*
+typedef struct { 
+    
+}Param;  
+
+*/
 typedef struct {
     word masc; 
     word opcode; 
     char * name;
     void (*do_func)(void); 
-    
+    //char params; 
 } Command; 
 
 typedef struct {
     word val;
-    adr a;
-} Pair;
+    word a;
+} Arg;
 
-Pair ss = {0, 0}; 
-Pair dd = {0, 0};  
+
+Arg ss = {0, 0}; 
+Arg dd = {0, 0};  
 
 Command cmd[] = {
     {0170000, 0010000, "mov", do_mov},
@@ -32,22 +42,47 @@ Command cmd[] = {
     {0000000, 0000000, "nothing", do_nothing}
 }
 
-
-Pair get_ss(word w)
+Arg get_mr( word w ) 
 {
-    Pair res; 
-    w = w >> 6; 
-    res.val = reg[(w&7)];
-    res.a = (w&7); 
-    return res; 
-    
+    Arg res; 
+    int r = w & 7; 
+    int mode = ( w >> 3 ) & 7; 
+    switch ( m ) {
+        case 0 : // R3
+            res.a = r; 
+            res.val = reg[r]; 
+            trace("R%o", r); 
+            break;
+        case 1 : // (R3)
+            res.a = reg[r]; 
+            res.val = w_read(res.a); // todo b_read 
+            trace("(R%o)", r); 
+            break; 
+        case 2 : // (R3) + #3
+            res.a = reg[r]; 
+            res.val = w_read(res.a); // todo b_read
+            reg[r] += 2 // todo  +1 
+            if ( r == 7 ) 
+                trace("#%o", r); 
+            else
+                trace("(R%o)", r); 
+            break; 
+        default: 
+            fprintf(stderr,
+                    "Mode %o not made yet \n", mode); 
+            exit(1); 
+    }
 }
-Pair get_dd(word w)
+
+
+
+Arg get_ss(word w)
 {
-    Pair res; 
-    res.val = reg[(w&7)];
-    res.a = (w&7); 
-    return res; 
+    return get_mr( w >> 6 );
+}
+Arg get_dd(word w)
+{
+    return get_mr( w ); 
 }
 
 void do_halt()
@@ -55,13 +90,13 @@ void do_halt()
     trace("THE END!!!\n");
     exit(0);
 }
-void do_mov(Pair words) 
+void do_mov(Arg w) 
 {
-    w_write(w);
+    w_write(w.wal);
     //trace("%06o : %06ho\n",start + i, w_read(start + i));
 }
-void do_movb(Pair words) {    
-    b_write(b);
+void do_movb(Arg w) {    
+    b_write(w.val);
     //trace("%06o : %06ho\n",start + i, w_read(start + i));
 }
 void do_add(word w) 
@@ -96,7 +131,8 @@ void run()
         }
         else if ( (w & 0170000) == 0010000 ) { // 01SSDD
             trace("mov ");
-            do_move(w);
+            
+            //? do_move(w);
         }
         /*
         else if () {
