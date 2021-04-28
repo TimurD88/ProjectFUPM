@@ -1,21 +1,15 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdarg.h>
+#include "pdp.h"
 
 typedef unsigned char byte; //8bit
 typedef unsigned short int word;//16bit
 typedef word adr; //16bit
-
+s
 #define MEMSIZE ( 64*1024 )
-
 byte mem[MEMSIZE];
 
-void b_write( adr a, byte b ); 
-byte b_read( adr a ); 
-void w_write( adr a, word w ); 
-word w_read( adr a ); 
-void load_file();
-void mem_dump(adr start, word n);
 void trace(char * str, ... ) {
     va_list ap; 
     va_start(ap, str);
