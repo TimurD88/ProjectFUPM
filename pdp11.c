@@ -1,13 +1,10 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include "pdp.h"
 
-typedef unsigned char byte; //8bit
-typedef unsigned short int word;//16bit
-typedef word adr; //16bit
-s
-#define MEMSIZE ( 64*1024 )
+
 byte mem[MEMSIZE];
 
 void trace(char * str, ... ) {
@@ -16,6 +13,12 @@ void trace(char * str, ... ) {
     vprintf(str, ap);
     va_end(ap); 
     
+}
+
+void get_console(int argc, char * argv[]) {
+    for(int i = 0; i < argc; ++i) {
+        load_file(argv[i]);
+    }
 }
 
 void test_mem() {
@@ -33,15 +36,14 @@ void test_mem() {
     assert( w == wres); 
     //printf("%04hx=%04hx\n", w, wres); 
 }
-/*
-int main ()
-{
-    test_mem();
-    //load_file();
-    mem_dump(0x40,4);
+
+int main (int argc, char * argv[])
+{   
+    get_console(argc, argv);
+    run();
     return 0; 
 }
-*/
+
 void b_write( adr a, byte b )
 {
     mem[a] = b; 
@@ -60,20 +62,22 @@ void w_write( adr a, word w ){
     mem[a] = w & 0xFF;
     mem[a+1] = w >> 8 & 0xFF;
 }
-void load_file()
+void load_file(const char* file)
 {
-    adr a;
-    unsigned short int n;
-    byte b = 0x00;
-    int i;
-    while(1) {
-        int in = scanf("%04hx%04hx", &a, &n);
-        if( in != 2){
-            break;
-        }
-        for (i = 0; i < n; i++) {
-            scanf("%02hhx", &b);
-            b_write(a + i, b);
+    FILE * fl = fopen(file, "r"); 
+    if ( fl == NULL ) {
+        exit(0); 
+    }
+    else {
+        adr a = 0;
+        word w = 0; 
+        unsigned short int n = 0; 
+        int i;
+        while ( fscanf(fl, "%04hx%02hx", &a, &n) == 2 ) {
+            for ( i = 0; i < n; i+=2 ){
+                fscanf(fl, "%02hx", &w);
+                w_write(a + i, w); 
+            }
         }
     }
 }

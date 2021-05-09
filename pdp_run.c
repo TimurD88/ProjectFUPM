@@ -1,36 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pdp.h"
-#include "pdp11.h"
 
 word reg[8]; // регистра р0 ... р7
-#define pc reg[7]
-
-#define NO_PARAMS 0
-#define HAS_DD 1 
-#define HAS_SS 2 
-/*
-typedef struct { 
-    
-}Param;  
-
-*/
-typedef struct {
-    word masc; 
-    word opcode; 
-    char * name;
-    void (*do_func)(void); 
-    //char params; 
-} Command; 
-
-typedef struct {
-    word val;
-    word a;
-} Arg;
-
-
-Arg ss = {0, 0}; 
-Arg dd = {0, 0};  
 
 Command cmd[] = {
     {0170000, 0010000, "mov", do_mov},
@@ -40,14 +12,14 @@ Command cmd[] = {
     {0177700, 0005000, "clr", do_clr},
     {0177777, 0000000, "halt", do_halt},
     {0000000, 0000000, "nothing", do_nothing}
-}
+};
 
 Arg get_mr( word w ) 
 {
     Arg res; 
     int r = w & 7; 
     int mode = ( w >> 3 ) & 7; 
-    switch ( m ) {
+    switch ( mode ) {
         case 0 : // R3
             res.a = r; 
             res.val = reg[r]; 
@@ -61,7 +33,7 @@ Arg get_mr( word w )
         case 2 : // (R3) + #3
             res.a = reg[r]; 
             res.val = w_read(res.a); // todo b_read
-            reg[r] += 2 // todo  +1 
+            reg[r] += 2; // todo  +1 
             if ( r == 7 ) 
                 trace("#%o", r); 
             else
@@ -74,7 +46,20 @@ Arg get_mr( word w )
     }
 }
 
+Arg get_arg( word w, adr a ) {
+    Arg res;
+    res.val = w;
+    res.a = a;
+    return res;
+}
 
+Obj get_obj ( word w, adr a ){
+    Obj res; 
+    Arg arg = get_arg(w, a);
+    res.dd = get_dd(arg);
+    res.ss = get_ss(arg);
+    return res; 
+}
 
 Arg get_ss(word w)
 {
@@ -85,67 +70,74 @@ Arg get_dd(word w)
     return get_mr( w ); 
 }
 
+
+
 void do_halt()
 {
     trace("THE END!!!\n");
     exit(0);
 }
-void do_mov(Arg w) 
+void do_mov(Obj ob) 
 {
-    w_write(w.wal);
+    w_write(ob.ss.a, ob.dd.val);
+}
+void do_movb(Obj ob) {    
+    b_write(ob.ss.a, ob.dd.val);
     //trace("%06o : %06ho\n",start + i, w_read(start + i));
 }
-void do_movb(Arg w) {    
-    b_write(w.val);
-    //trace("%06o : %06ho\n",start + i, w_read(start + i));
-}
-void do_add(word w) 
+void do_add(Obj ob) 
 {
-    word res = dd.val + ss.val;  
-    w_write(dd.a, res); 
+    word res = w_read(ob.dd.a) + ob.ss.val;
+    w_write(ob.dd.a, res); 
     //trace("%06o : %06ho\n",start + i, w_read(start + i));
 }
 void do_nothing() 
 {
     exit(0);
 }
-void do_sob (word w) {
-    word a = ( w >> 6 ) & 7; 
-    reg[a] -= 1;
-    if ( reg[a] != 0 ) 
-        pc -= (sizeof(word)/sizeof(byte)) * ( w & 63 );  
+/*
+void do_sob (Obj ob) {
+    
 }
-void do_clear( word w ) {
-    int a = ( w & 7 ); 
+*/
+void do_clr( Obj ob ) {
+    w_write(ob.dd.a, 0); 
+    //trace("%06o : %06ho\n",start + i, w_read(start + i));
 }
 void run() 
 {
     pc = 01000;
     while (1) {
+
         word w = w_read(pc);
+        Obj kk = get_obj(w);
         trace("06o % 06: \n", pc, w);
-        pc += 2; 
-        if ( w == 0 ) {
+        pc += 2;
+        if ( (w&0177777) == 0 ) {
             trace("halt ");
             do_halt(); 
         }
         else if ( (w & 0170000) == 0010000 ) { // 01SSDD
             trace("mov ");
-            
-            //? do_move(w);
+            do_mov(kk);
         }
-        /*
-        else if () {
         
+        else if ( (w & 0170000) == 0060000 ) {
+            trace("add ");
+            do_add(kk);
         }
-        else if () {
-        
+        else if ( (w & 0177700 ) == 0005000) {
+            trace("clr ");
+            do_clr(kk);
         }
-        else if () {
-        
-        }*/
+        else if ( w == 0 ) {
+            trace("nothing ");
+            do_nothing();
+        }
     }
 }
+
+
 /*
 word is_byte (word w) {
     return (w >> 15) & 1; 
