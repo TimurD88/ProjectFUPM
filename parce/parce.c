@@ -27,6 +27,14 @@ void trace(char * str, ... ) {
 
 //"http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument"; 
 
+void free_all (Url res) {
+    free(res.protocol);
+    free(res.domain);
+    free(res.port);
+    free(res.path);
+    free(res.param);
+    free(res.anchor); 
+}
 
 char * get_parce ( char * res, char * start, char * end) {
     if ( start == NULL && end == NULL ) {
@@ -80,6 +88,7 @@ Url parce_url( const char * url )
     char * anc = strstr( prm, "#" ); // anchor
     */
     dmn = strstr( url, "://" ); // domain..
+    dmn = dmn + 3;
     if ( dmn != NULL ) 
         prt = strstr( dmn+3, ":" ); // port..
     if ( prt != NULL )
@@ -122,114 +131,27 @@ Url parce_url( const char * url )
                 res.domain = malloc(K);
                 res.domain = get_parce(res.domain, dmn, prt);
                 break;
-                /*if ( dmn != NULL ) {
-                        if ( ( strlen ( dmn + 3 ) - strlen(prt) ) < K ) { 
-                        sscanf(dmn+3, "%[^:]", res.domain);
-                        trace("domain - %s \n", res.domain);
-                        break;
-                    }
-                    else {
-                        res.domain = realloc( res.domain, strlen ( dmn ) - strlen( prt ) +K );
-                        sscanf(dmn+3, "%[^:]", res.domain);
-                        trace("domain - %s \n", res.domain);
-                        break;
-                    }
-                }
-                else {
-                    res.domain = NULL;
-                    trace("domain - %s \n", res.domain);
-                    break;
-                }*/
+                
             case 2 :
                     res.port = malloc(K);
                     res.port = get_parce(res.port, prt, pth);
                     break;
-                    /*
-                    if ( prt != NULL ) {
-                    if ( ( strlen ( prt ) - strlen(pth) ) < K ) { 
-                        sscanf(prt, "%[^/]", res.port);
-                        trace("port - %s \n", res.port);
-                        break;
-                    }
-                    else {
-                        res.port = realloc( res.port, strlen ( prt ) - strlen( pth )  + K);
-                        sscanf(prt, "%[^/]", res.port);
-                        trace("port - %s \n", res.port);
-                        break;
-                    }
-                    }
-                    else{
-                    res.port = NULL;
-                    trace("port - %s \n", res.port);
-                    break;
-                }*/
+                    
             case 3 : 
                 res.path = malloc(K);
                 res.path = get_parce(res.path, pth, prm ); 
                 break;
-                /*if ( pth != NULL ) {
-                if ( ( strlen ( pth ) - strlen(prm) ) < K ) { 
-                    sscanf(pth, "%[^?]", res.path);
-                    trace("path - %s \n", res.path);
-                    break;
-                }
-                else {
-                    res.path = realloc( res.path, strlen ( pth ) - strlen( prm ) + K );
-                    sscanf(pth, "%[^?]", res.path);
-                    trace("path - %s \n", res.path);
-                    break;
-                }
-                }
-                else{
-                    res.path = NULL;
-                    trace("path - %s \n", res.path);
-                    break;
-                }*/
+               
             case 4 : 
                 res.param = malloc(K);
                 res.param = get_parce(res.param, prm, anc); 
                 break;
-                /*if ( prm != NULL ) {
-                if ( ( strlen ( prm ) - strlen(anc) ) < K ) { 
-                    sscanf(prm, "%[^#]", res.param);
-                    trace("param - %s \n", res.param);
-                    break;
                 
-                }
-                else {
-                    res.param = realloc( res.param, strlen ( prm ) - strlen(anc) + K );
-                    sscanf(prm, "%[^#]", res.param);
-                    trace("param - %s \n", res.param);
-                    break;
-                }
-                }
-                else {
-                    res.param = NULL;
-                    trace("param - %s \n", res.param);
-                    break;
-                }*/
             case 5 : 
                 res.anchor = malloc(K);
                 res.anchor = get_parce( res.anchor, anc, NULL ); 
                 break;
-                /*if ( anc != NULL ) {
-                if (  strlen(anc) < K ) { 
-                    sscanf(anc, "%s", res.anchor);
-                    trace("anchor - %s \n", res.anchor);
-                    break;
-                }
-                else {
-                    res.anchor = realloc( res.anchor, strlen(anc) + K );
-                    sscanf(anc, "%s ", res.anchor);
-                    trace("anchor - %s \n", res.anchor);
-                    break;
-                }
-                }
-                else {
-                    res.anchor = NULL;
-                    trace("anchor - %s \n", res.anchor);
-                    break;
-                }*/
+                
         }
     }
     return res; 
@@ -244,18 +166,23 @@ Url parce_url( const char * url )
 
 int main()
 {
-    //const char * str = "http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
-    const char * str = "http://www.example.com:80";
+    const char * str = "http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
+    //const char * str = "http://www.example.com:80";
     Url res = parce_url(str); 
     //trace( "%s://\n%s\n:%s\n%s\n%s\n#%s\n", res.protocol, res.domain, res.port, res.param, res.path, res.anchor );
     //trace( "%s\n%s\n%s", res.protocol, res.domain, res.port);
     //trace( "%s\n%s\n%s\n%s\n%s\n%s\n", res.protocol, res.domain, res.port, res.path, res.param, res.anchor);
+    //char * cmd[5] = {res.protocol, res.domain, res.port, res.path, res.param, res.anchor}; 
+    free_all(res);
+    //trace( "%s\n%s\n%s\n%s\n%s\n%s\n", res.protocol, res.domain, res.port, res.path, res.param, res.anchor);
+    /*
     free(res.protocol);
     free(res.domain);
     free(res.port);
     free(res.path);
     free(res.param);
     free(res.anchor);
+    */
     /*
     char * dmn = NULL; // domain..
     char * prt = NULL; // port..
