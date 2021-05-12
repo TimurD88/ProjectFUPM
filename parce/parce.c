@@ -36,6 +36,7 @@ void free_all (Url res) {
     free(res.anchor); 
 }
 
+
 char * get_parce ( char * res, char * start, char * end) {
     if ( start == NULL && end == NULL ) {
         return res = NULL; 
@@ -71,7 +72,7 @@ char * get_parce ( char * res, char * start, char * end) {
 
 
 
-Url parce_url( const char * url )
+Url parce_url( const char * url ) // для полной строки с портом, якорем и аргументом
 {
     Url res;
     char * dmn = NULL; // domain..
@@ -80,19 +81,21 @@ Url parce_url( const char * url )
     char * prm = NULL; // param..
     char * anc = NULL; // anchor
     
-    /*
-    char * dmn = strstr( url, "://" ); // domain..
-    char * prt = strstr( dmn+3, ":" ); // port..
-    char * pth = strstr( prt, "/" ); // path.. 
-    char * prm = strstr( pth, "?" ); // param..
-    char * anc = strstr( prm, "#" ); // anchor
-    */
+    int domain = 0;
+    int port = 0;
+    int path = 0;
+    int param = 0;
+    int anchor = 0;
+    //const char * str = "https://developer.mozilla.org/ru/docs/Learn/";
+    //const char * str = "https://developer.mozilla.org/ru/search?q=URL";    
     dmn = strstr( url, "://" ); // domain..
     dmn = dmn + 3;
     if ( dmn != NULL ) 
         prt = strstr( dmn+3, ":" ); // port..
     if ( prt != NULL )
-        pth = strstr( prt, "/" ); // path.. 
+        pth = strstr( prt, "/" ); // path..
+    else 
+        pth = strstr( dmn + 3, "/" ); 
     if ( pth != NULL )
         prm = strstr( pth, "?" ); // param..
     if ( prm != NULL )
@@ -129,7 +132,10 @@ Url parce_url( const char * url )
                 }
             case 1 : 
                 res.domain = malloc(K);
-                res.domain = get_parce(res.domain, dmn, prt);
+                if ( prt != NULL ) 
+                    res.domain = get_parce(res.domain, dmn, prt);
+                else 
+                    res.domain = get_parce(res.domain, dmn, pth);
                 break;
                 
             case 2 :
@@ -166,49 +172,11 @@ Url parce_url( const char * url )
 
 int main()
 {
-    const char * str = "http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
-    //const char * str = "http://www.example.com:80";
+    //const char * str = "http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
+    //const char * str = "https://developer.mozilla.org/ru/docs/Learn/";
+    const char * str = "https://developer.mozilla.org/ru/search?q=URL";
+    
     Url res = parce_url(str); 
-    //trace( "%s://\n%s\n:%s\n%s\n%s\n#%s\n", res.protocol, res.domain, res.port, res.param, res.path, res.anchor );
-    //trace( "%s\n%s\n%s", res.protocol, res.domain, res.port);
-    //trace( "%s\n%s\n%s\n%s\n%s\n%s\n", res.protocol, res.domain, res.port, res.path, res.param, res.anchor);
-    //char * cmd[5] = {res.protocol, res.domain, res.port, res.path, res.param, res.anchor}; 
     free_all(res);
-    //trace( "%s\n%s\n%s\n%s\n%s\n%s\n", res.protocol, res.domain, res.port, res.path, res.param, res.anchor);
-    /*
-    free(res.protocol);
-    free(res.domain);
-    free(res.port);
-    free(res.path);
-    free(res.param);
-    free(res.anchor);
-    */
-    /*
-    char * dmn = NULL; // domain..
-    char * prt = NULL; // port..
-    char * pth = NULL; // path.. 
-    char * prm = NULL; // param..
-    char * anc = NULL; // anchor
-    
-    
-    char * dmn = strstr( url, "://" ); // domain..
-    char * prt = strstr( dmn+3, ":" ); // port..
-    char * pth = strstr( prt, "/" ); // path.. 
-    char * prm = strstr( pth, "?" ); // param..
-    char * anc = strstr( prm, "#" ); // anchor
-    
-    dmn = strstr( str, "://" ); // domain..
-    if ( dmn != NULL ) 
-        prt = strstr( dmn+3, ":" ); // port..
-    if ( prt != NULL )
-        pth = strstr( prt, "/" ); // path.. 
-    if ( pth != NULL )
-        prm = strstr( pth, "?" ); // param..
-    if ( prm != NULL )
-        anc = strstr( prm, "#" ); // anchor
-    
-    
-    trace( "%s \n %s \n %s \n %s \n %s \n",  dmn, prt, pth, prm, anc ) ; 
-    */
     return 0;
 }
