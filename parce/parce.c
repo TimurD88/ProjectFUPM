@@ -28,7 +28,6 @@ void trace(char * str, ... ) {
     
 }
 
-//"http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
 void free_all (Url res) {
     free(res.protocol);
     free(res.domain);
@@ -82,9 +81,6 @@ Url parce_url( const char * url ) // для полной строки с пор�
     char * pth = NULL; // path.. 
     char * prm = NULL; // param..
     char * anc = NULL; // anchor
-    //"http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
-    //const char * str = "https://developer.mozilla.org/ru/docs/Learn/";
-    //const char * str = "https://developer.mozilla.org/ru/search?q=URL";    
     dmn = strstr( url, "://" ); // domain..
     
     if ( dmn != NULL ) 
@@ -162,14 +158,7 @@ Url parce_url( const char * url ) // для полной строки с пор�
         }
     }
     return res; 
-    //sscanf(url, "%[^://]://%[^:]:%[^/]%[^?]%[^#]#%s", res.protocol, res.domain, res.port, res.path, res.param, res.anchor);
 }
-/*
-    char * pth = strstr( prt, "/" ); // path..
-    char * prm = strstr( pth, "?" ); // param..
-    char * anc = strstr( prm, "#" ); // ancho
-  */
-//fscanf(fl, "%s\n", str)
 void load_file ( const char * file )
 {    
     const char * str = malloc(2048);
@@ -188,31 +177,11 @@ void load_file ( const char * file )
     else 
         exit(0);
 }
-/*
-void get_console(int argc, char * argv[]) {
-    for(int i = 0; i < argc; ++i) {
-        load_file(argv[i]);
-    }
-*/
 
 
 
 int main()
 {
-    //get_console(argc, argv);
     load_file("url_list.txt");
-    /*
-    const char * str = "http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
-    //const char * str = "https://developer.mozilla.org/ru/docs/Learn/";
-    //const char * str = "https://developer.mozilla.org/ru/search?q=URL";
-    //const char * str = "URL";
-    
-    Url res = parce_url(str); 
-    
-    trace ( "|...|\n protocol - %s \n domen - %s \n port - %s \n path - %s \n param - %s \n acn - %s \n ",
-     res.protocol, res.domain, res.port, res.path, res.param, res.anchor);
-    
-    free_all(res);*/
-    //
     //return 0;
 }
