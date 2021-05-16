@@ -28,8 +28,7 @@ void trace(char * str, ... ) {
     
 }
 
-//"http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument"; 
-
+//"http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
 void free_all (Url res) {
     free(res.protocol);
     free(res.domain);
@@ -83,7 +82,7 @@ Url parce_url( const char * url ) // для полной строки с пор�
     char * pth = NULL; // path.. 
     char * prm = NULL; // param..
     char * anc = NULL; // anchor
-    
+    //"http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument";
     //const char * str = "https://developer.mozilla.org/ru/docs/Learn/";
     //const char * str = "https://developer.mozilla.org/ru/search?q=URL";    
     dmn = strstr( url, "://" ); // domain..
@@ -173,7 +172,7 @@ Url parce_url( const char * url ) // для полной строки с пор�
 //fscanf(fl, "%s\n", str)
 void load_file ( const char * file )
 {    
-    const char * str = malloc(10*K);
+    const char * str = malloc(2048);
     Url res; 
     FILE * fl = fopen(file, "r"); 
     if ( fl != NULL ) { 
