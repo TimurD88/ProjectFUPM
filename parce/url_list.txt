@@ -1,7 +1,0 @@
-https://developer.mozilla.org/ru/docs/Learn/
-https://developer.mozilla.org/ru/search?q=URL
-https://developer.mozilla.org:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument
-http://www.example.com:80/path/to/myfile.html?key1=value1&key2=value2#SomewhereInTheDocument
-wsrf
-https://developer.mozilla.org
-developer.mozilla.org
